@@ -4,25 +4,26 @@
 #include <debug.h>
 #include <list.h>
 #include <stdint.h>
+#define TIMER_FREQ 100
 
 /* States in a thread's life cycle. */
 enum thread_status
-  {
-    THREAD_RUNNING,     /* Running thread. */
-    THREAD_READY,       /* Not running but ready to run. */
-    THREAD_BLOCKED,     /* Waiting for an event to trigger. */
-    THREAD_DYING        /* About to be destroyed. */
-  };
+{
+  THREAD_RUNNING, /* Running thread. */
+  THREAD_READY,   /* Not running but ready to run. */
+  THREAD_BLOCKED, /* Waiting for an event to trigger. */
+  THREAD_DYING    /* About to be destroyed. */
+};
 
 /* Thread identifier type.
    You can redefine this to whatever type you like. */
 typedef int tid_t;
-#define TID_ERROR ((tid_t) -1)          /* Error value for tid_t. */
+#define TID_ERROR ((tid_t)-1) /* Error value for tid_t. */
 
 /* Thread priorities. */
-#define PRI_MIN 0                       /* Lowest priority. */
-#define PRI_DEFAULT 31                  /* Default priority. */
-#define PRI_MAX 63                      /* Highest priority. */
+#define PRI_MIN 0      /* Lowest priority. */
+#define PRI_DEFAULT 31 /* Default priority. */
+#define PRI_MAX 63     /* Highest priority. */
 
 /* A kernel thread or user process.
 
@@ -80,28 +81,51 @@ typedef int tid_t;
    only because they are mutually exclusive: only a thread in the
    ready state is on the run queue, whereas only a thread in the
    blocked state is on a semaphore wait list. */
+
+#define FLOAT_SHIFT_AMOUNT 17
+#define F mypow (14)
+#define Q 14
+
+int mypow (int p);
+typedef int float_type;
+
+#define FLOAT_CONST(A) ((float_type) (A * F))
+#define FLOAT_ADD(A, B) (A + B)
+#define FLOAT_ADD_MIX(A, B) (A + (B * F))
+#define FLOAT_SUB(A, B) (A - B)
+#define FLOAT_SUB_MIX(A, B) (A - (B * F))
+#define FLOAT_MULT_MIX(A, B) (A * B)
+#define FLOAT_DIV_MIX(A, B) (A / B)
+#define FLOAT_MULT(A, B) ((float_type) (((int64_t)A) * B / F))
+#define FLOAT_DIV(A, B) ((float_type) ((((int64_t)A) * F) / B))
+#define FLOAT_INT_PART(A) (A >> FLOAT_SHIFT_AMOUNT)
+#define FLOAT_ROUND(A)                                                        \
+  (A >= 0 ? ((A + (1 * mypow (Q - 1))) / F) : ((A - (1 * mypow (Q - 1))) / F))
+
 struct thread
 {
   /* Owned by thread.c. */
   tid_t tid;                 /* Thread identifier. */
   enum thread_status status; /* Thread state. */
-  int64_t wakeup_tick;       /* Time that thread can be awaken */
   char name[16];             /* Name (for debugging purposes). */
   uint8_t *stack;            /* Saved stack pointer. */
+  int64_t wakeup_tick;       /* Time that thread can be awaken */
+  float_type cpu_time;       /* Total Thread CPU time*/
   int priority;              /* Priority. */
+  int nice;                  /* Measure for the scheduler */
   struct list_elem allelem;  /* List element for all threads list. */
 
-    /* Shared between thread.c and synch.c. */
-    struct list_elem elem;              /* List element. */
+  /* Shared between thread.c and synch.c. */
+  struct list_elem elem; /* List element. */
 
 #ifdef USERPROG
-    /* Owned by userprog/process.c. */
-    uint32_t *pagedir;                  /* Page directory. */
+  /* Owned by userprog/process.c. */
+  uint32_t *pagedir; /* Page directory. */
 #endif
 
-    /* Owned by thread.c. */
-    unsigned magic;                     /* Detects stack overflow. */
-  };
+  /* Owned by thread.c. */
+  unsigned magic; /* Detects stack overflow. */
+};
 
 /* If false (default), use round-robin scheduler.
    If true, use multi-level feedback queue scheduler.
@@ -134,10 +158,13 @@ void thread_foreach (thread_action_func *, void *);
 
 int thread_get_priority (void);
 void thread_set_priority (int);
-
 int thread_get_nice (void);
 void thread_set_nice (int);
+
 int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
+
+void cpu_time_recalculate (void);
+void priority_recalculate (void);
 
 #endif /* threads/thread.h */
