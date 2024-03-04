@@ -1,11 +1,11 @@
 #include "devices/shutdown.h"
-#include <console.h>
-#include <stdio.h>
 #include "devices/kbd.h"
 #include "devices/serial.h"
 #include "devices/timer.h"
 #include "threads/io.h"
 #include "threads/thread.h"
+#include <console.h>
+#include <stdio.h>
 #ifdef USERPROG
 #include "userprog/exception.h"
 #endif
@@ -58,8 +58,8 @@ shutdown_reboot (void)
 {
   printf ("Rebooting...\n");
 
-    /* See [kbd] for details on how to program the keyboard
-     * controller. */
+  /* See [kbd] for details on how to program the keyboard
+   * controller. */
   for (;;)
     {
       int i;
@@ -98,7 +98,7 @@ shutdown_power_off (void)
 
   printf ("Powering off...\n");
   serial_flush ();
-outw( 0x604, 0x0 | 0x2000 );
+  outw (0x604, 0x0 | 0x2000);
 
   /* ACPI power-off */
   outw (0xB004, 0x2000);
@@ -118,11 +118,12 @@ outw( 0x604, 0x0 | 0x2000 );
   /* This will power off a VMware VM if "gui.exitOnCLIHLT = TRUE"
      is set in its configuration file.  (The "pintos" script does
      that automatically.)  */
-  asm volatile ("cli; hlt" : : : "memory");
+  asm volatile("cli; hlt" : : : "memory");
 
   /* None of those worked. */
   printf ("still running...\n");
-  for (;;);
+  for (;;)
+    ;
 }
 
 /* Print statistics about Pintos execution. */
