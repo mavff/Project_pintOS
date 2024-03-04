@@ -1,27 +1,27 @@
-#include "threads/init.h"
-#include <console.h>
-#include <debug.h>
+#include "init.h"
+#include "console.h"
+#include "debug.h"
 #include <inttypes.h>
 #include <limits.h>
-#include <random.h>
+#include "random.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "devices/kbd.h"
-#include "devices/input.h"
-#include "devices/serial.h"
-#include "devices/shutdown.h"
-#include "devices/timer.h"
-#include "devices/vga.h"
-#include "devices/rtc.h"
-#include "threads/interrupt.h"
-#include "threads/io.h"
-#include "threads/loader.h"
-#include "threads/malloc.h"
-#include "threads/palloc.h"
-#include "threads/pte.h"
-#include "threads/thread.h"
+#include "kbd.h"
+#include "input.h"
+#include "serial.h"
+#include "shutdown.h"
+#include "timer.h"
+#include "vga.h"
+#include "rtc.h"
+#include "interrupt.h"
+#include "io.h"
+#include "loader.h"
+#include "malloc.h"
+#include "palloc.h"
+#include "pte.h"
+#include "thread.h"
 #ifdef USERPROG
 #include "userprog/process.h"
 #include "userprog/exception.h"
@@ -70,7 +70,7 @@ static void locate_block_devices (void);
 static void locate_block_device (enum block_type, const char *name);
 #endif
 
-int main (void) NO_RETURN;
+int main (void) ;//NO_RETURN;
 
 /* Pintos main program. */
 int
@@ -196,6 +196,7 @@ read_command_line (void)
   static char *argv[LOADER_ARGS_LEN / 2 + 1];
   char *p, *end;
   int argc;
+  
   int i;
 
   argc = *(uint32_t *) ptov (LOADER_ARG_CNT);

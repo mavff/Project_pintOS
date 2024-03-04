@@ -1,3 +1,5 @@
+#ifndef A0D56639_054C_47A7_9CB7_6EBD4905C4CA
+#define A0D56639_054C_47A7_9CB7_6EBD4905C4CA
 #ifndef THREADS_SYNCH_H
 #define THREADS_SYNCH_H
 
@@ -49,3 +51,6 @@ void cond_broadcast (struct condition *, struct lock *);
 #define barrier() asm volatile ("" : : : "memory")
 
 #endif /* threads/synch.h */
+
+
+#endif /* A0D56639_054C_47A7_9CB7_6EBD4905C4CA */

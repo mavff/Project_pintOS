@@ -1,3 +1,5 @@
+#ifndef C3E58209_60A9_4D7C_9028_6B5A6B75A38A
+#define C3E58209_60A9_4D7C_9028_6B5A6B75A38A
 #ifndef __LIB_KERNEL_LIST_H
 #define __LIB_KERNEL_LIST_H
 
@@ -179,3 +181,6 @@ struct list_elem *list_max (struct list *, list_less_func *, void *aux);
 struct list_elem *list_min (struct list *, list_less_func *, void *aux);
 
 #endif /* lib/kernel/list.h */
+
+
+#endif /* C3E58209_60A9_4D7C_9028_6B5A6B75A38A */

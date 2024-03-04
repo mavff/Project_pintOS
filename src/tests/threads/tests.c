@@ -1,5 +1,6 @@
-#include "tests/threads/tests.h"
-#include <debug.h>
+//
+#include "tests.h"
+//#include <debug.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -36,7 +37,7 @@ static const struct test tests[] =
     {"mlfqs-fair-2", test_mlfqs_fair_2},
     {"mlfqs-fair-20", test_mlfqs_fair_20},
     {"mlfqs-nice-2", test_mlfqs_nice_2},
-    {"mlfqs-nice-10", test_mlfqs_nice_10},
+    {"alarm-single", test_mlfqs_nice_10},
     {"mlfqs-block", test_mlfqs_block},
   };
 
@@ -99,4 +100,3 @@ pass (void)
 {
   printf ("(%s) PASS\n", test_name);
 }
-

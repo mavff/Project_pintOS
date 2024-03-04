@@ -3,12 +3,12 @@
    that it is valid. */
 
 #include <stdio.h>
-#include "tests/threads/tests.h"
-#include "threads/init.h"
-#include "threads/malloc.h"
-#include "threads/synch.h"
-#include "threads/thread.h"
-#include "devices/timer.h"
+#include "tests.h"
+#include "init.h"
+#include "malloc.h"
+#include "synch.h"
+#include "thread.h"
+#include "timer.h"
 
 static void test_sleep (int thread_cnt, int iterations);
 
@@ -23,7 +23,7 @@ test_alarm_multiple (void)
 {
   test_sleep (5, 7);
 }
-
+
 /* Information about the test. */
 struct sleep_test 
   {
@@ -123,11 +123,20 @@ test_sleep (int thread_cnt, int iterations)
     }
 
   /* Verify that we had the proper number of wakeups. */
-  for (i = 0; i < thread_cnt; i++)
+  for (i = 0; i < thread_cnt; i++){
+
     if (threads[i].iterations != iterations)
       fail ("thread %d woke up %d times instead of %d",
             i, threads[i].iterations, iterations);
+  }
+  /////////////////////////////////////////////////////////
   
+  long long int idle_ticks= get_idle_ticks();
+  long long int kernel_ticks=get_kernel_ticks();
+  long long int user_ticks=get_user_ticks();
+  msg("Thread: %i idle ticks, %i kernel ticks, %i user ticks");
+  
+  ///////////////////////////////////////////////////////
   lock_release (&test.output_lock);
   free (output);
   free (threads);

@@ -1,3 +1,5 @@
+#ifndef E1F618B5_5E94_4BEE_BCA9_913FBF54FB9B
+#define E1F618B5_5E94_4BEE_BCA9_913FBF54FB9B
 #ifndef THREADS_INIT_H
 #define THREADS_INIT_H
 
@@ -10,3 +12,6 @@
 extern uint32_t *init_page_dir;
 
 #endif /* threads/init.h */
+
+
+#endif /* E1F618B5_5E94_4BEE_BCA9_913FBF54FB9B */

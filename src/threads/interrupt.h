@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-
+#include "timer.h"
 /* Interrupts on or off? */
 enum intr_level 
   {
@@ -15,7 +15,6 @@ enum intr_level intr_get_level (void);
 enum intr_level intr_set_level (enum intr_level);
 enum intr_level intr_enable (void);
 enum intr_level intr_disable (void);
-
 /* Interrupt stack frame. */
 struct intr_frame
   {

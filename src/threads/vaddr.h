@@ -1,11 +1,11 @@
 #ifndef THREADS_VADDR_H
 #define THREADS_VADDR_H
 
-#include <debug.h>
+#include "debug.h"
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "threads/loader.h"
+#include "loader.h"
 
 /* Functions and macros for working with virtual addresses.
 
@@ -39,7 +39,7 @@ static inline void *pg_round_up (const void *va) {
 static inline void *pg_round_down (const void *va) {
   return (void *) ((uintptr_t) va & ~PGMASK);
 }
-
+
 /* Base address of the 1:1 physical-to-virtual mapping.  Physical
    memory is mapped starting at this virtual address.  Thus,
    physical address 0 is accessible at PHYS_BASE, physical
@@ -71,9 +71,9 @@ is_kernel_vaddr (const void *vaddr)
 static inline void *
 ptov (uintptr_t paddr)
 {
-  ASSERT ((void *) paddr < PHYS_BASE);
+  ASSERT ( paddr < (uintptr_t)PHYS_BASE);
 
-  return (void *) (paddr + PHYS_BASE);
+  return (void *) (paddr + (uintptr_t)PHYS_BASE);
 }
 
 /* Returns physical address at which kernel virtual address VADDR
