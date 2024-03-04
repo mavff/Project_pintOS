@@ -7,6 +7,7 @@
 #include "threads/synch.h"
 #include "threads/vaddr.h"
 #include <debug.h>
+#include <limits.h>
 #include <random.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -53,6 +54,7 @@ static long long user_ticks;   /* # of timer ticks in user programs. */
 /* Scheduling. */
 #define TIME_SLICE 4          /* # of timer ticks to give each thread. */
 static unsigned thread_ticks; /* # of timer ticks since last yield. */
+static long long total_ticks; /* # of timer ticks since booting*/
 
 /* If false (default), use round-robin scheduler.
    If true, use multi-level feedback queue scheduler.
@@ -122,6 +124,8 @@ thread_start (void)
 void
 thread_tick (void)
 {
+
+  total_ticks++;
   struct thread *t = thread_current ();
 
   /* Update statistics. */
@@ -314,6 +318,25 @@ thread_yield (void)
   intr_set_level (old_level);
 }
 
+/* Yields the CPU. The current thread is put to sleep and
+   may be scheduled again after the specified tick. */
+void
+thread_sleep (int64_t tick)
+{
+  struct thread *cur = thread_current ();
+  enum intr_level old_level;
+
+  ASSERT (!intr_context ());
+
+  old_level = intr_disable ();
+  if (cur != idle_thread)
+    list_push_back (&ready_list, &cur->elem);
+  cur->status = THREAD_READY;
+  cur->wakeup_tick = tick;
+  schedule ();
+  intr_set_level (old_level);
+}
+
 /* Invoke function 'func' on all threads, passing along 'aux'.
    This function must be called with interrupts off. */
 void
@@ -461,6 +484,7 @@ init_thread (struct thread *t, const char *name, int priority)
   t->status = THREAD_BLOCKED;
   strlcpy (t->name, name, sizeof t->name);
   t->stack = (uint8_t *)t + PGSIZE;
+  t->wakeup_tick = 0;
   t->priority = priority;
   t->magic = THREAD_MAGIC;
 
@@ -483,17 +507,28 @@ alloc_frame (struct thread *t, size_t size)
 }
 
 /* Chooses and returns the next thread to be scheduled.  Should
-   return a thread from the run queue, unless the run queue is
-   empty.  (If the running thread can continue running, then it
-   will be in the run queue.)  If the run queue is empty, return
-   idle_thread. */
+   return a thread from the run queue, unless it is empty or all threads are
+   sleeping. (If the running thread can continue running, then it will be in
+   the run queue.)  If there's no avaliable thread, return idle_thread. */
 static struct thread *
 next_thread_to_run (void)
 {
   if (list_empty (&ready_list))
     return idle_thread;
   else
-    return list_entry (list_pop_front (&ready_list), struct thread, elem);
+    {
+      for (struct list_elem *e = list_begin (&ready_list);
+           e != list_end (&ready_list); e = list_next (e))
+        {
+          struct thread *cur = list_entry (e, struct thread, elem);
+          if (cur->wakeup_tick <= total_ticks)
+            {
+              list_remove (e);
+              return cur;
+            }
+        }
+      return idle_thread;
+    }
 }
 
 /* Completes a thread switch by activating the new thread's page
@@ -521,6 +556,7 @@ thread_schedule_tail (struct thread *prev)
 
   /* Mark us as running. */
   cur->status = THREAD_RUNNING;
+  cur->wakeup_tick = 0;
 
   /* Start new time slice. */
   thread_ticks = 0;
